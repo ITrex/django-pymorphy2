@@ -10,11 +10,14 @@ import re
 
 from django import template
 from django.utils.text import force_text
-
+from django_pymorphy2.morph import morph
 from django_pymorphy2.config import MARKER_OPEN, MARKER_CLOSE
 from django_pymorphy2.shortcuts.forms import get_forms_tuple
 from django_pymorphy2.shortcuts.inflect import inflect_phrase, inflect_collocation_phrase
 from django_pymorphy2.shortcuts.plural import pluralize_phrase
+from django_pymorphy2.shortcuts.smart import PhraseInflector
+from pymorphy2.shapes import restore_capitalization
+
 
 register = template.Library()
 
@@ -65,6 +68,21 @@ def inflect_collocation(phrase, forms):
     if not phrase or not forms:
         return phrase
     return _process_unmarked_phrase(force_text(phrase), inflect_collocation_phrase, *get_forms_tuple(forms))
+
+@register.filter
+def inflect_smart(phrase, forms):
+    if not phrase or not forms:
+        return phrase
+    inflector = PhraseInflector(morph)
+    inflected = inflector.inflect(phrase, get_forms_tuple(forms)[0])
+
+    splitted_phrase = phrase.split(' ')
+    inflected_phrase = inflected.split(' ')
+    result = [restore_capitalization(inflected, splitted)
+              for splitted, inflected
+              in zip(splitted_phrase, inflected_phrase)]
+
+    return ' '.join(result)
 
 
 @register.filter

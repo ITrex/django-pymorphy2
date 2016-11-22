@@ -129,6 +129,9 @@ class InflectCollocationTest(PymorphyDjangoTestCase):
 
         self.assertInflected('Пакет с пряниками', 'рд', 'Пакета с пряниками')
 
+
+        self.assertInflected('бортовой автомобиль', 'рд,мр', 'бортового автомобиля')
+
         self.assertInflected('деревня Самосделкино', 'вн', 'деревню Самосделкино')
 
 
@@ -172,4 +175,3 @@ class LazyStringTest(PymorphyDjangoTestCase):
         rendered, expected = tpl.render(template.Context({'horses': horse})), 'коню'
         err_msg = self._msg("%s != %s" , rendered, expected)
         self.assertEqual(rendered, expected, err_msg)
-
